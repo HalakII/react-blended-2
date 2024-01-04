@@ -29,6 +29,7 @@ export class SearchForm extends Component {
         <InputSearch
           placeholder="What do you want to write?"
           name="search"
+          value={this.state.query}
           required
           autoFocus
           onChange={this.onChange}
