@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import { nanoid } from 'nanoid';
 
-import { Grid, SearchForm, Todo, GridItem, Text, EditForm } from 'components';
+import { CompGrid, SearchForm, Text, EditForm } from 'components';
 
 const TODOS_KEY = 'todos';
 
@@ -34,6 +34,7 @@ export class Todos extends Component {
   };
 
   handleDeleteTodo = id => {
+    console.log(id);
     const { todos } = this.state;
     const newTodos = todos.filter(todo => todo.id !== id);
     this.setState({ todos: newTodos });
@@ -95,21 +96,11 @@ export class Todos extends Component {
         {todos.length === 0 && (
           <Text textAlign="center">There are no any todos</Text>
         )}
-        <Grid>
-          {todos.map(({ text, id }, index) => {
-            return (
-              <GridItem key={id}>
-                <Todo
-                  text={text}
-                  counter={index + 1}
-                  id={id}
-                  onDeleteTodo={this.handleDeleteTodo}
-                  onEdit={this.handleEdit}
-                />
-              </GridItem>
-            );
-          })}
-        </Grid>
+        <CompGrid
+          todos={todos}
+          onDeleteTodo={this.handleDeleteTodo}
+          onEdit={this.handleEdit}
+        />
       </>
     );
   }
