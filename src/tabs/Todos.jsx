@@ -1,107 +1,78 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
 
 import { CompGrid, SearchForm, Text, EditForm } from 'components';
 
-const TODOS_KEY = 'todos';
+import React from 'react';
 
-export class Todos extends Component {
-  state = {
-    todos: [],
-    isEditing: false,
-    editingTodo: {},
-  };
+export const Todos = () => {
+  const [todos, setTodos] = useState(
+    () => JSON.parse(localStorage.getItem('todos')) ?? []
+  );
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingTodo, setEditingTodo] = useState({ id: null, text: '' });
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
 
-  componentDidMount = () => {
-    const todos = JSON.parse(localStorage.getItem(TODOS_KEY));
-    if (todos) {
-      this.setState({ todos });
-    }
-  };
-
-  componentDidUpdate = (_, prevState) => {
-    const { todos } = this.state;
-    if (prevState.todos !== todos) {
-      localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
-    }
-  };
-
-  handleSubmit = text => {
+  const handleSubmit = text => {
     const todo = { text, id: nanoid() };
-    this.setState(prevState => ({
-      todos: [...prevState.todos, todo],
-    }));
+    setTodos(prevTodos => [...prevTodos, todo]);
   };
 
-  handleDeleteTodo = id => {
-    console.log(id);
-    const { todos } = this.state;
+  const handleDeleteTodo = id => {
     const newTodos = todos.filter(todo => todo.id !== id);
-    this.setState({ todos: newTodos });
+    setTodos(newTodos);
   };
 
-  handleEdit = id => {
-    const { todos } = this.state;
+  const handleEdit = id => {
     const todoToEdit = todos.find(todo => todo.id === id);
-    this.setState({
-      isEditing: true,
-      editingTodo: { id, text: todoToEdit.text },
-    });
+    setIsEditing(true);
+    setEditingTodo({ id, text: todoToEdit.text });
   };
 
-  handleCancel = () => {
-    this.setState({
-      isEditing: false,
-      editingTodo: {},
-    });
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditingTodo({ id: null, text: '' });
   };
 
-  handleInputEditChange = event => {
-    this.setState(prevState => ({
-      editingTodo: {
-        ...prevState.editingTodo,
-        text: event.target.value,
-      },
+  const handleInputEditChange = event => {
+    setEditingTodo(prevEditingTodo => ({
+      ...prevEditingTodo,
+      text: event.target.value,
     }));
   };
 
-  handleInputUpdatedTodos = (id, updatedTodo) => {
-    const { todos } = this.state;
+  const handleInputUpdatedTodos = (id, updatedTodo) => {
     const updatedTodos = todos.map(todo =>
       todo.id === id ? { ...todo, text: updatedTodo.text } : todo
     );
-
-    this.setState({
-      todos: updatedTodos,
-      isEditing: false,
-      editingTodo: {},
-    });
+    setIsEditing(false);
+    setEditingTodo({ id: null, text: '' });
+    setTodos(updatedTodos);
   };
 
-  render() {
-    const { todos, editingTodo, isEditing } = this.state;
-    return (
-      <>
-        {isEditing ? (
-          <EditForm
-            onUpdate={this.handleInputUpdatedTodos}
-            onCancel={this.handleCancel}
-            onChange={this.handleInputEditChange}
-            currentTodo={editingTodo}
-          />
-        ) : (
-          <SearchForm onSubmit={this.handleSubmit} />
-        )}
-
-        {todos.length === 0 && (
-          <Text textAlign="center">There are no any todos</Text>
-        )}
-        <CompGrid
-          todos={todos}
-          onDeleteTodo={this.handleDeleteTodo}
-          onEdit={this.handleEdit}
+  return (
+    <>
+      {isEditing ? (
+        <EditForm
+          onUpdate={handleInputUpdatedTodos}
+          onCancel={handleCancel}
+          onChange={handleInputEditChange}
+          currentTodo={editingTodo}
         />
-      </>
-    );
-  }
-}
+      ) : (
+        <SearchForm onSubmit={handleSubmit} />
+      )}
+
+      {todos.length === 0 && (
+        <Text textAlign="center">There are no any todos</Text>
+      )}
+      <CompGrid
+        todos={todos}
+        onDeleteTodo={handleDeleteTodo}
+        onEdit={handleEdit}
+      />
+    </>
+  );
+};

@@ -3,7 +3,6 @@ import { Todo } from 'components';
 import { GridItem } from './Grid.styled';
 
 export const CompGridItem = ({ id, text, counter, onDeleteTodo, onEdit }) => {
-  console.log(onDeleteTodo);
   return (
     <GridItem>
       <Todo

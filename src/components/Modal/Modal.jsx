@@ -1,30 +1,30 @@
-import { Component } from "react";
-import { Overlay, ModalDiv } from "components";
+import { useEffect } from 'react';
+import { Overlay, ModalDiv } from 'components';
 
-export class Modal extends Component {
-    componentDidMount() {
-        window.addEventListener('keydown', this.escapeCloseModal);
+export const Modal = ({ src, alt, onCloseModal }) => {
+  useEffect(() => {
+    const escapeCloseModal = evt => {
+      if (evt.code === 'Escape') {
+        onCloseModal();
       }
-      componentWillUnmount() {
-        window.removeEventListener('keydown', this.escapeCloseModal);
-      }
-    
-      escapeCloseModal = evt => {
-        if (evt.code === 'Escape') {
-          this.props.onCloseModal();
-        }
-      };
-      backdropCloseModal = evt => {
-        if (evt.target === evt.currentTarget) {
-          this.props.onCloseModal();
-        }
-      };
+    };
 
-    render() { 
-        return (<Overlay onClick={this.backdropCloseModal}>
-            <ModalDiv>
-              <img src={this.props.src.large} alt={this.props.alt} />
-            </ModalDiv>
-          </Overlay>);
+    window.addEventListener('keydown', escapeCloseModal);
+    return () => {
+      window.removeEventListener('keydown', escapeCloseModal);
+    };
+  }, [onCloseModal]);
+
+  const backdropCloseModal = evt => {
+    if (evt.target === evt.currentTarget) {
+      onCloseModal();
     }
-}
+  };
+  return (
+    <Overlay onClick={backdropCloseModal}>
+      <ModalDiv>
+        <img src={src.large} alt={alt} />
+      </ModalDiv>
+    </Overlay>
+  );
+};
